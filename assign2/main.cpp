@@ -11,12 +11,13 @@
 #include <iostream>
 #include <queue>
 #include <set>
+#include <sstream>
 #include <string>
 #include <unordered_set>
 
 #include "utils.h"
 
-std::string kYourName = "STUDENT TODO"; // Don't forget to change this!
+std::string kYourName = "song yexin"; // Don't forget to change this!
 
 /**
  * Takes in a file name and returns a set containing all of the applicant names as a set.
@@ -30,7 +31,19 @@ std::string kYourName = "STUDENT TODO"; // Don't forget to change this!
  * to also change the corresponding functions in `utils.h`.
  */
 std::set<std::string> get_applicants(std::string filename) {
-  // STUDENT TODO: Implement this function.
+  std::ifstream input_file(filename);
+  std::set<std::string> applicants;
+  if (input_file.is_open()) {
+    std::string applicant;
+    while (std::getline(input_file, applicant)) {
+      applicants.insert(applicant);
+    }
+    input_file.close();
+  } else {
+    std::cerr << "Error opening file: " << filename << std::endl;
+    return {};
+  }
+  return applicants;
 }
 
 /**
@@ -43,6 +56,27 @@ std::set<std::string> get_applicants(std::string filename) {
  */
 std::queue<const std::string*> find_matches(std::string name, std::set<std::string>& students) {
   // STUDENT TODO: Implement this function.
+  auto equal_init = [&](std::string a,std::string b)
+  {
+    std::stringstream A(a),B(b);
+    std::string a1,a2,b1,b2;
+    A >> a1 >> a2;
+    B >> b1 >> b2;
+    if(a1[0]==b1[0] && a2[0]==b2[0])
+    {
+      return true;
+    }
+    return false;
+  };
+  std::queue<const std::string*> result;
+  for(const auto& student:students)
+  {
+    if(equal_init(student, name))
+    {
+      result.push(&student);
+    }
+  }
+  return result;
 }
 
 /**
@@ -57,6 +91,13 @@ std::queue<const std::string*> find_matches(std::string name, std::set<std::stri
  */
 std::string get_match(std::queue<const std::string*>& matches) {
   // STUDENT TODO: Implement this function.
+  if(matches.empty())
+  {
+    return "NO MATCHES FOUND.";
+  }
+  std::string result=*matches.front();
+  matches.pop();
+  return result;
 }
 
 /* #### Please don't modify this call to the autograder! #### */

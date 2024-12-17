@@ -4,23 +4,26 @@
 #include <utility>
 
 /**
- * @brief A smart pointer that owns an object and deletes it when it goes out of scope.
+ * @brief A smart pointer that owns an object and deletes it when it goes out of
+ * scope.
  * @tparam T The type of the object to manage.
  * @note This class is a simpler version of `std::unique_ptr`.
  */
 template <typename T> class unique_ptr {
 private:
   /* STUDENT TODO: What data must a unique_ptr keep track of? */
+  T *value;
 
 public:
   /**
    * @brief Constructs a new `unique_ptr` from the given pointer.
    * @param ptr The pointer to manage.
-   * @note You should avoid using this constructor directly and instead use `make_unique()`.
+   * @note You should avoid using this constructor directly and instead use
+   * `make_unique()`.
    */
-  unique_ptr(T* ptr) {
+  unique_ptr(T *ptr) {
     /* STUDENT TODO: Implement the constructor */
-    throw std::runtime_error("Not implemented: unique_ptr(T* ptr)");
+    value = ptr;
   }
 
   /**
@@ -28,7 +31,7 @@ public:
    */
   unique_ptr(std::nullptr_t) {
     /* STUDENT TODO: Implement the nullptr constructor */
-    throw std::runtime_error("Not implemented: unique_ptr(std::nullptr_t)");
+    value = nullptr;
   }
 
   /**
@@ -41,38 +44,41 @@ public:
    * @brief Dereferences a `unique_ptr` and returns a reference to the object.
    * @return A reference to the object.
    */
-  T& operator*() {
+  T &operator*() {
     /* STUDENT TODO: Implement the dereference operator */
-    throw std::runtime_error("Not implemented: operator*()");
+    return *value;
   }
 
   /**
-   * @brief Dereferences a `unique_ptr` and returns a const reference to the object.
+   * @brief Dereferences a `unique_ptr` and returns a const reference to the
+   * object.
    * @return A const reference to the object.
    */
-  const T& operator*() const {
+  const T &operator*() const {
     /* STUDENT TODO: Implement the dereference operator (const) */
-    throw std::runtime_error("Not implemented: operator*() const");
+    return *value;
   }
 
   /**
    * @brief Returns a pointer to the object managed by the `unique_ptr`.
-   * @note This allows for accessing the members of the managed object through the `->` operator.
+   * @note This allows for accessing the members of the managed object through
+   * the `->` operator.
    * @return A pointer to the object.
    */
-  T* operator->() {
+  T *operator->() {
     /* STUDENT TODO: Implement the arrow operator */
-    throw std::runtime_error("Not implemented: operator->()");
+    return value;
   }
 
   /**
    * @brief Returns a const pointer to the object managed by the `unique_ptr`.
-   * @note This allows for accessing the members of the managed object through the `->` operator.
+   * @note This allows for accessing the members of the managed object through
+   * the `->` operator.
    * @return A const pointer to the object.
    */
-  const T* operator->() const {
+  const T *operator->() const {
     /* STUDENT TODO: Implement the arrow operator */
-    throw std::runtime_error("Not implemented: operator->() const");
+    return value;
   }
 
   /**
@@ -82,7 +88,9 @@ public:
    */
   operator bool() const {
     /* STUDENT TODO: Implement the boolean conversion operator */
-    throw std::runtime_error("Not implemented: operator bool() const");
+    if (value != nullptr)
+      return true;
+    return false;
   }
 
   /** STUDENT TODO: In the space below, do the following:
@@ -92,6 +100,16 @@ public:
    * - Implement the move constructor
    * - Implement the move assignment operator
    */
+  ~unique_ptr() { delete value; }
+  unique_ptr(const unique_ptr &) = delete;
+  unique_ptr &operator=(const unique_ptr &) = delete;
+  unique_ptr(unique_ptr &&other) : value(other.value) { other.value = nullptr; }
+  unique_ptr &operator=(unique_ptr &&other) {
+    delete value;
+    value = other.value;
+    other.value = nullptr;
+    return *this;
+  }
 };
 
 /**
@@ -101,6 +119,7 @@ public:
  * @tparam Args The types of the arguments to pass to the constructor of T.
  * @param args The arguments to pass to the constructor of T.
  */
-template <typename T, typename... Args> unique_ptr<T> make_unique(Args&&... args) {
+template <typename T, typename... Args>
+unique_ptr<T> make_unique(Args &&...args) {
   return unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
